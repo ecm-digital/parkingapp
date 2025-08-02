@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkingSpot - Rezerwacja Parkingu</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-parking"></i>
+                    <span>ParkingSpot</span>
+                </div>
+                <div class="header-subtitle">
+                    Szybka rezerwacja bez rejestracji
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Step 1: Vehicle and Location Selection -->
+            <section id="step-1" class="step active">
+                <div class="step-header">
+                    <h1>Znajdź idealne miejsce parkingowe</h1>
+                    <p>Wybierz plac parkingowy i typ pojazdu</p>
+                </div>
+
+                <div class="form-section">
+                    <div class="input-group">
+                        <label for="vehicle-type">
+                            <i class="fas fa-truck"></i>
+                            Typ pojazdu
+                        </label>
+                        <select id="vehicle-type" class="form-select">
+                            <option value="small-bus" selected>Mały bus (do 3.5t)</option>
+                            <option value="car">Samochód osobowy</option>
+                            <option value="large-bus">Duży bus (powyżej 3.5t)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="parking-lot">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Plac parkingowy
+                        </label>
+                        <div class="parking-lots-grid" id="parking-lots">
+                            <div class="parking-lot-card" data-lot="centrum">
+                                <div class="lot-icon">
+                                    <i class="fas fa-building"></i>
+                                </div>
+                                <div class="lot-info">
+                                    <h3>Centrum Handlowe</h3>
+                                    <p>ul. Główna 15</p>
+                                    <span class="price">25 zł/dzień</span>
+                                </div>
+                                <div class="lot-features">
+                                    <span class="feature"><i class="fas fa-shield-alt"></i> Monitoring</span>
+                                    <span class="feature"><i class="fas fa-clock"></i> 24/7</span>
+                                </div>
+                            </div>
+
+                            <div class="parking-lot-card" data-lot="dworzec">
+                                <div class="lot-icon">
+                                    <i class="fas fa-train"></i>
+                                </div>
+                                <div class="lot-info">
+                                    <h3>Dworzec Główny</h3>
+                                    <p>ul. Kolejowa 8</p>
+                                    <span class="price">20 zł/dzień</span>
+                                </div>
+                                <div class="lot-features">
+                                    <span class="feature"><i class="fas fa-shield-alt"></i> Monitoring</span>
+                                    <span class="feature"><i class="fas fa-wifi"></i> WiFi</span>
+                                </div>
+                            </div>
+
+                            <div class="parking-lot-card" data-lot="lotnisko">
+                                <div class="lot-icon">
+                                    <i class="fas fa-plane"></i>
+                                </div>
+                                <div class="lot-info">
+                                    <h3>Lotnisko</h3>
+                                    <p>ul. Lotnicza 1</p>
+                                    <span class="price">35 zł/dzień</span>
+                                </div>
+                                <div class="lot-features">
+                                    <span class="feature"><i class="fas fa-shield-alt"></i> Monitoring</span>
+                                    <span class="feature"><i class="fas fa-shuttle-van"></i> Transfer</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="continue-to-dates" disabled>
+                    Wybierz daty najmu
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </section>
+
+            <!-- Step 2: Date Selection -->
+            <section id="step-2" class="step">
+                <div class="step-header">
+                    <button class="btn-back" id="back-to-step-1">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h1>Wybierz okres najmu</h1>
+                        <p>Określ daty od kiedy do kiedy potrzebujesz miejsce</p>
+                    </div>
+                </div>
+
+                <div class="selected-lot-info" id="selected-lot-info">
+                    <!-- Will be populated by JS -->
+                </div>
+
+                <div class="date-selection">
+                    <div class="date-inputs">
+                        <div class="date-input-group">
+                            <label for="start-date">
+                                <i class="fas fa-calendar-plus"></i>
+                                Data rozpoczęcia
+                            </label>
+                            <input type="date" id="start-date" class="form-input">
+                        </div>
+                        <div class="date-input-group">
+                            <label for="end-date">
+                                <i class="fas fa-calendar-minus"></i>
+                                Data zakończenia
+                            </label>
+                            <input type="date" id="end-date" class="form-input">
+                        </div>
+                    </div>
+                    
+                    <div class="rental-summary" id="rental-summary" style="display: none;">
+                        <div class="summary-item">
+                            <span>Liczba dni:</span>
+                            <span id="days-count">0</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span>Koszt całkowity:</span>
+                            <span id="total-cost">0 zł</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="check-availability" disabled>
+                    Sprawdź dostępność
+                    <i class="fas fa-search"></i>
+                </button>
+            </section>
+
+            <!-- Step 3: Availability and Spot Selection -->
+            <section id="step-3" class="step">
+                <div class="step-header">
+                    <button class="btn-back" id="back-to-step-2">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h1>Dostępne miejsca</h1>
+                        <p>Wybierz konkretne miejsce parkingowe</p>
+                    </div>
+                </div>
+
+                <div class="availability-info" id="availability-info">
+                    <!-- Will be populated by JS -->
+                </div>
+
+                <div class="spots-grid" id="spots-grid">
+                    <!-- Will be populated by JS -->
+                </div>
+
+                <button class="btn-primary" id="continue-to-contact" disabled>
+                    Przejdź do danych kontaktowych
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </section>
+
+            <!-- Step 4: Contact Form and Confirmation -->
+            <section id="step-4" class="step">
+                <div class="step-header">
+                    <button class="btn-back" id="back-to-step-3">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h1>Finalizacja rezerwacji</h1>
+                        <p>Podaj dane kontaktowe i potwierdź rezerwację</p>
+                    </div>
+                </div>
+
+                <div class="reservation-summary" id="reservation-summary">
+                    <!-- Will be populated by JS -->
+                </div>
+
+                <div class="contact-form">
+                    <h3>Dane kontaktowe</h3>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="first-name">
+                                <i class="fas fa-user"></i>
+                                Imię *
+                            </label>
+                            <input type="text" id="first-name" class="form-input" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="last-name">
+                                <i class="fas fa-user"></i>
+                                Nazwisko *
+                            </label>
+                            <input type="text" id="last-name" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="email">
+                                <i class="fas fa-envelope"></i>
+                                Email *
+                            </label>
+                            <input type="email" id="email" class="form-input" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="phone">
+                                <i class="fas fa-phone"></i>
+                                Telefon *
+                            </label>
+                            <input type="tel" id="phone" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="license-plate">
+                            <i class="fas fa-car"></i>
+                            Numer rejestracyjny pojazdu *
+                        </label>
+                        <input type="text" id="license-plate" class="form-input" placeholder="np. WA 12345" required>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="confirm-reservation" disabled>
+                    Potwierdź rezerwację
+                    <i class="fas fa-check"></i>
+                </button>
+            </section>
+
+            <!-- Step 5: Confirmation -->
+            <section id="step-5" class="step">
+                <div class="confirmation-content">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h1>Rezerwacja potwierdzona!</h1>
+                    <p>Twoja rezerwacja została pomyślnie utworzona</p>
+                    
+                    <div class="confirmation-details" id="confirmation-details">
+                        <!-- Will be populated by JS -->
+                    </div>
+
+                    <div class="confirmation-actions">
+                        <button class="btn-secondary" id="download-confirmation">
+                            <i class="fas fa-download"></i>
+                            Pobierz potwierdzenie
+                        </button>
+                        <button class="btn-primary" id="new-reservation">
+                            Nowa rezerwacja
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+            <div class="progress-step active" data-step="1">
+                <div class="step-number">1</div>
+                <span>Wybór</span>
+            </div>
+            <div class="progress-step" data-step="2">
+                <div class="step-number">2</div>
+                <span>Daty</span>
+            </div>
+            <div class="progress-step" data-step="3">
+                <div class="step-number">3</div>
+                <span>Miejsca</span>
+            </div>
+            <div class="progress-step" data-step="4">
+                <div class="step-number">4</div>
+                <span>Kontakt</span>
+            </div>
+            <div class="progress-step" data-step="5">
+                <div class="step-number">5</div>
+                <span>Gotowe</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
