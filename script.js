@@ -15,7 +15,6 @@ const parkingLots = {
     centrum: {
         name: 'Centrum Handlowe',
         address: 'ul. Główna 15',
-        price: 25,
         features: ['Monitoring', '24/7'],
         icon: 'fas fa-building',
         spots: [
@@ -30,7 +29,6 @@ const parkingLots = {
     dworzec: {
         name: 'Dworzec Główny',
         address: 'ul. Kolejowa 8',
-        price: 20,
         features: ['Monitoring', 'WiFi'],
         icon: 'fas fa-train',
         spots: [
@@ -45,7 +43,6 @@ const parkingLots = {
     lotnisko: {
         name: 'Lotnisko',
         address: 'ul. Lotnicza 1',
-        price: 35,
         features: ['Monitoring', 'Transfer'],
         icon: 'fas fa-plane',
         spots: [
@@ -201,7 +198,16 @@ function selectParkingLot(lotId) {
     document.querySelector(`[data-lot="${lotId}"]`).classList.add('selected');
     
     appState.selectedLot = lotId;
-    document.getElementById('continue-to-dates').disabled = false;
+    const continueButton = document.getElementById('continue-to-dates');
+    continueButton.disabled = false;
+    
+    // Auto-scroll to make the button visible
+    setTimeout(() => {
+        continueButton.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+        });
+    }, 300);
 }
 
 function displaySelectedLotInfo() {
