@@ -134,9 +134,34 @@ function setupEventListeners() {
     document.getElementById('new-reservation').addEventListener('click', startNewReservation);
 
     // Back buttons
-    document.getElementById('back-to-step-1').addEventListener('click', () => showStep(1));
-    document.getElementById('back-to-step-2').addEventListener('click', () => showStep(2));
-    document.getElementById('back-to-step-3').addEventListener('click', () => showStep(3));
+    document.getElementById('back-to-step-1').addEventListener('click', function() {
+        showStep(1);
+    });
+
+    document.getElementById('back-to-step-2').addEventListener('click', function() {
+        showStep(2);
+    });
+
+    document.getElementById('back-to-step-3').addEventListener('click', function() {
+        showStep(3);
+    });
+
+    // Progress steps navigation
+    progressSteps.forEach((step, index) => {
+        step.addEventListener('click', function() {
+            const targetStep = index + 1;
+            if (canNavigateToStep(targetStep)) {
+                showStep(targetStep);
+                if (targetStep === 2) displaySelectedLotInfo();
+                if (targetStep === 3) displayAvailableSpots();
+                if (targetStep === 4) displayReservationSummary();
+                if (targetStep === 5) displayConfirmation();
+            }
+        });
+    });
+
+    // Setup sticky action button
+    setupStickyActionButton();
 }
 
 function setMinDate() {
@@ -471,6 +496,73 @@ function updateProgressIndicator() {
             step.classList.add('active');
         }
     });
+    
+    // Update sticky action button
+    updateStickyActionButton();
+}
+
+// Check if user can navigate to a specific step
+function canNavigateToStep(stepNumber) {
+    switch (stepNumber) {
+        case 1:
+            return true;
+        case 2:
+            return appState.selectedLot !== null;
+        case 3:
+            return appState.selectedLot !== null && appState.startDate && appState.endDate;
+        case 4:
+            return appState.selectedLot !== null && appState.startDate && appState.endDate && appState.selectedSpot;
+        case 5:
+            return appState.selectedLot !== null && appState.startDate && appState.endDate && 
+                   appState.selectedSpot && Object.keys(appState.contactInfo).length > 0;
+        default:
+            return false;
+    }
+}
+
+// Setup sticky action button functionality
+function setupStickyActionButton() {
+    // Create sticky button if it doesn't exist
+    let stickyButton = document.getElementById('sticky-action-button');
+    if (!stickyButton) {
+        stickyButton = document.createElement('button');
+        stickyButton.id = 'sticky-action-button';
+        stickyButton.className = 'sticky-action-button';
+        document.body.appendChild(stickyButton);
+    }
+    
+    // Add click event listener
+    stickyButton.addEventListener('click', function() {
+        const currentStepElement = document.querySelector(`#step-${appState.currentStep}`);
+        const regularButton = currentStepElement.querySelector('.btn-primary:not(.sticky-action-button)');
+        if (regularButton && !regularButton.disabled) {
+            regularButton.click();
+        }
+    });
+}
+
+// Update sticky action button based on current step
+function updateStickyActionButton() {
+    const stickyButton = document.getElementById('sticky-action-button');
+    if (!stickyButton) return;
+    
+    const currentStepElement = document.querySelector(`#step-${appState.currentStep}`);
+    const regularButton = currentStepElement.querySelector('.btn-primary:not(.sticky-action-button)');
+    
+    if (regularButton) {
+        // Copy button text and state
+        stickyButton.innerHTML = regularButton.innerHTML;
+        stickyButton.disabled = regularButton.disabled;
+        
+        // Show/hide based on screen size and step
+        if (window.innerWidth <= 768 && appState.currentStep < 5) {
+            stickyButton.style.display = 'flex';
+        } else {
+            stickyButton.style.display = 'none';
+        }
+    } else {
+        stickyButton.style.display = 'none';
+    }
 }
 
 // Add smooth animations and transitions
@@ -481,6 +573,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.transition = 'opacity 0.5s ease';
         document.body.style.opacity = '1';
     }, 100);
+});
+
+// Handle window resize for sticky button
+window.addEventListener('resize', function() {
+    updateStickyActionButton();
 });
 
 // Add keyboard navigation support
