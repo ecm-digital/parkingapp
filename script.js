@@ -99,9 +99,6 @@ function setupEventListeners() {
     document.getElementById('end-date').addEventListener('change', handleDateChange);
     
     document.getElementById('check-availability').addEventListener('click', function() {
-        // Clear auto-progress timer if user manually clicks
-        clearTimeout(window.autoProgressTimer);
-        
         if (appState.startDate && appState.endDate) {
             showStep(3);
             displayAvailableSpots();
@@ -228,18 +225,6 @@ function handleDateChange() {
     if (startDate) {
         document.getElementById('end-date').min = startDate;
         appState.startDate = startDate;
-        
-        // Auto-set end date to next day if not set
-        if (!endDate) {
-            const nextDay = new Date(startDate);
-            nextDay.setDate(nextDay.getDate() + 1);
-            const nextDayString = nextDay.toISOString().split('T')[0];
-            document.getElementById('end-date').value = nextDayString;
-            appState.endDate = nextDayString;
-        }
-        
-        // Show helpful message
-        showDateFeedback('start-selected');
     }
     
     if (endDate) {
@@ -249,32 +234,18 @@ function handleDateChange() {
     if (startDate && endDate) {
         calculateRentalSummary();
         checkButton.disabled = false;
-        checkButton.textContent = 'Sprawdź dostępność';
-        checkButton.innerHTML = '<i class="fas fa-search"></i> Sprawdź dostępność';
         
-        // Auto-proceed after 1.5 seconds if user doesn't click
-        clearTimeout(window.autoProgressTimer);
-        window.autoProgressTimer = setTimeout(() => {
-            if (!checkButton.disabled && appState.currentStep === 2) {
-                showDateFeedback('auto-proceeding');
-                setTimeout(() => {
-                    checkButton.click();
-                }, 1000);
-            }
-        }, 2000);
+        // Show success feedback - but NO auto-progression
+        showDateFeedback('success');
         
-        showDateFeedback('both-selected');
     } else {
-        document.getElementById('rental-summary').style.display = 'none';
         checkButton.disabled = true;
-        checkButton.innerHTML = '<i class="fas fa-calendar"></i> Wybierz obie daty';
         
-        if (startDate && !endDate) {
-            showDateFeedback('need-end-date');
-        } else if (!startDate && endDate) {
-            showDateFeedback('need-start-date');
-        } else {
-            showDateFeedback('need-both-dates');
+        // Show appropriate feedback
+        if (!startDate && !endDate) {
+            showDateFeedback('info');
+        } else if (!endDate) {
+            showDateFeedback('warning');
         }
     }
 }
@@ -355,15 +326,8 @@ function calculateRentalSummary() {
     const diffTime = Math.abs(end - start);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Include both start and end day
     
-    const lot = parkingLots[appState.selectedLot];
-    const totalCost = diffDays * lot.price;
-    
-    document.getElementById('days-count').textContent = diffDays;
-    document.getElementById('total-cost').textContent = `${totalCost} zł`;
-    document.getElementById('rental-summary').style.display = 'block';
-    
     appState.totalDays = diffDays;
-    appState.totalCost = totalCost;
+    // No cost calculation needed - pricing removed
 }
 
 function displayAvailableSpots() {
@@ -438,10 +402,6 @@ function displayReservationSummary() {
             <div class="summary-card">
                 <h4>Okres najmu</h4>
                 <p>${startDateFormatted} - ${endDateFormatted}</p>
-            </div>
-            <div class="summary-card">
-                <h4>Koszt całkowity</h4>
-                <p>${appState.totalCost} zł</p>
             </div>
         </div>
     `;
