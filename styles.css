@@ -318,6 +318,65 @@ body {
     padding: 2rem;
     border-radius: 16px;
     margin-bottom: 2rem;
+    position: relative;
+}
+
+/* Date Feedback Messages */
+.date-feedback {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    animation: slideInUp 0.3s ease-out;
+}
+
+.date-feedback.info {
+    background: rgba(52, 152, 219, 0.1);
+    color: #2980b9;
+    border-left: 4px solid #3498db;
+}
+
+.date-feedback.success {
+    background: rgba(46, 204, 113, 0.1);
+    color: #27ae60;
+    border-left: 4px solid #2ecc71;
+}
+
+.date-feedback.warning {
+    background: rgba(241, 196, 15, 0.1);
+    color: #d68910;
+    border-left: 4px solid #f1c40f;
+}
+
+.date-feedback.loading {
+    background: rgba(155, 89, 182, 0.1);
+    color: #8e44ad;
+    border-left: 4px solid #9b59b6;
+}
+
+.date-feedback i {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.date-feedback span {
+    flex: 1;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .date-inputs {
@@ -325,6 +384,31 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
     margin-bottom: 1.5rem;
+}
+
+.date-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.date-input-group label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.date-input-group .form-input {
+    font-size: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 2px solid #ecf0f1;
+    transition: all 0.3s ease;
+}
+
+.date-input-group .form-input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .rental-summary {
@@ -684,6 +768,35 @@ body {
     
     .date-inputs {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .date-selection {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .date-input-group .form-input {
+        font-size: 1.1rem;
+        padding: 1.2rem;
+        min-height: 50px;
+    }
+    
+    .date-feedback {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+        margin-top: 0.8rem;
+        border-radius: 8px;
+    }
+    
+    .rental-summary {
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .summary-item {
+        padding: 0.75rem 0;
+        font-size: 0.95rem;
     }
     
     .form-row {
@@ -758,5 +871,53 @@ body {
         padding: 1.4rem 2rem;
         font-size: 1.2rem;
         bottom: 90px;
+    }
+    
+    /* Enhanced mobile date form */
+    .date-selection {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .date-inputs {
+        gap: 0.8rem;
+    }
+    
+    .date-input-group .form-input {
+        font-size: 1.2rem;
+        padding: 1.4rem 1rem;
+        min-height: 55px;
+        border-radius: 10px;
+    }
+    
+    .date-input-group label {
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .date-feedback {
+        padding: 0.7rem 0.8rem;
+        font-size: 0.85rem;
+        gap: 0.5rem;
+        border-radius: 6px;
+    }
+    
+    .date-feedback i {
+        font-size: 1rem;
+    }
+    
+    .rental-summary {
+        padding: 0.8rem;
+        border-radius: 8px;
+    }
+    
+    .summary-item {
+        padding: 0.6rem 0;
+        font-size: 0.9rem;
+    }
+    
+    .summary-item.total {
+        font-size: 1rem;
+        padding-top: 0.8rem;
     }
 }

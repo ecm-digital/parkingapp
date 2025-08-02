@@ -101,6 +101,9 @@ function setupEventListeners() {
     document.getElementById('end-date').addEventListener('change', handleDateChange);
     
     document.getElementById('check-availability').addEventListener('click', function() {
+        // Clear auto-progress timer if user manually clicks
+        clearTimeout(window.autoProgressTimer);
+        
         if (appState.startDate && appState.endDate) {
             showStep(3);
             displayAvailableSpots();
@@ -166,8 +169,25 @@ function setupEventListeners() {
 
 function setMinDate() {
     const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowString = tomorrow.toISOString().split('T')[0];
+    
     document.getElementById('start-date').min = today;
     document.getElementById('end-date').min = today;
+    
+    // Set smart defaults - today as start, tomorrow as end
+    if (!appState.startDate && !appState.endDate) {
+        document.getElementById('start-date').value = today;
+        document.getElementById('end-date').value = tomorrowString;
+        appState.startDate = today;
+        appState.endDate = tomorrowString;
+        
+        // Trigger calculation with defaults
+        setTimeout(() => {
+            handleDateChange();
+        }, 100);
+    }
 }
 
 function selectParkingLot(lotId) {
@@ -196,10 +216,23 @@ function displaySelectedLotInfo() {
 function handleDateChange() {
     const startDate = document.getElementById('start-date').value;
     const endDate = document.getElementById('end-date').value;
+    const checkButton = document.getElementById('check-availability');
     
     if (startDate) {
         document.getElementById('end-date').min = startDate;
         appState.startDate = startDate;
+        
+        // Auto-set end date to next day if not set
+        if (!endDate) {
+            const nextDay = new Date(startDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+            const nextDayString = nextDay.toISOString().split('T')[0];
+            document.getElementById('end-date').value = nextDayString;
+            appState.endDate = nextDayString;
+        }
+        
+        // Show helpful message
+        showDateFeedback('start-selected');
     }
     
     if (endDate) {
@@ -208,10 +241,104 @@ function handleDateChange() {
     
     if (startDate && endDate) {
         calculateRentalSummary();
-        document.getElementById('check-availability').disabled = false;
+        checkButton.disabled = false;
+        checkButton.textContent = 'Sprawdź dostępność';
+        checkButton.innerHTML = '<i class="fas fa-search"></i> Sprawdź dostępność';
+        
+        // Auto-proceed after 1.5 seconds if user doesn't click
+        clearTimeout(window.autoProgressTimer);
+        window.autoProgressTimer = setTimeout(() => {
+            if (!checkButton.disabled && appState.currentStep === 2) {
+                showDateFeedback('auto-proceeding');
+                setTimeout(() => {
+                    checkButton.click();
+                }, 1000);
+            }
+        }, 2000);
+        
+        showDateFeedback('both-selected');
     } else {
         document.getElementById('rental-summary').style.display = 'none';
-        document.getElementById('check-availability').disabled = true;
+        checkButton.disabled = true;
+        checkButton.innerHTML = '<i class="fas fa-calendar"></i> Wybierz obie daty';
+        
+        if (startDate && !endDate) {
+            showDateFeedback('need-end-date');
+        } else if (!startDate && endDate) {
+            showDateFeedback('need-start-date');
+        } else {
+            showDateFeedback('need-both-dates');
+        }
+    }
+}
+
+// Show helpful feedback messages for date selection
+function showDateFeedback(type) {
+    let feedbackElement = document.getElementById('date-feedback');
+    if (!feedbackElement) {
+        feedbackElement = document.createElement('div');
+        feedbackElement.id = 'date-feedback';
+        feedbackElement.className = 'date-feedback';
+        document.querySelector('.date-selection').appendChild(feedbackElement);
+    }
+    
+    const messages = {
+        'start-selected': {
+            icon: 'fas fa-check',
+            text: 'Świetnie! Teraz wybierz datę zakończenia najmu.',
+            class: 'info'
+        },
+        'need-end-date': {
+            icon: 'fas fa-arrow-right',
+            text: 'Wybierz datę zakończenia najmu.',
+            class: 'info'
+        },
+        'need-start-date': {
+            icon: 'fas fa-arrow-left',
+            text: 'Najpierw wybierz datę rozpoczęcia najmu.',
+            class: 'warning'
+        },
+        'need-both-dates': {
+            icon: 'fas fa-calendar-alt',
+            text: 'Wybierz daty rozpoczęcia i zakończenia najmu.',
+            class: 'info'
+        },
+        'both-selected': {
+            icon: 'fas fa-check-circle',
+            text: 'Doskonale! Sprawdzimy dostępność miejsc.',
+            class: 'success'
+        },
+        'auto-proceeding': {
+            icon: 'fas fa-spinner fa-spin',
+            text: 'Sprawdzam dostępność...',
+            class: 'loading'
+        }
+    };
+    
+    const message = messages[type];
+    if (message) {
+        feedbackElement.innerHTML = `
+            <i class="${message.icon}"></i>
+            <span>${message.text}</span>
+        `;
+        feedbackElement.className = `date-feedback ${message.class}`;
+        
+        // Auto-hide after 4 seconds for success messages
+        if (message.class === 'success' || message.class === 'loading') {
+            setTimeout(() => {
+                if (feedbackElement.classList.contains(message.class)) {
+                    feedbackElement.style.opacity = '0';
+                    setTimeout(() => {
+                        if (feedbackElement.style.opacity === '0') {
+                            feedbackElement.style.display = 'none';
+                        }
+                    }, 300);
+                }
+            }, message.class === 'loading' ? 1000 : 3000);
+        } else {
+            feedbackElement.style.opacity = '1';
+            feedbackElement.style.display = 'block';
+        }
     }
 }
 
