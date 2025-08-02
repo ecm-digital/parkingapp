@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupEventListeners();
     setMinDate();
+    setupTouchOptimizations();
 });
 
 function initializeApp() {
@@ -738,3 +739,337 @@ function addValidationFeedback() {
 
 // Initialize validation feedback
 document.addEventListener('DOMContentLoaded', addValidationFeedback);
+
+// Touch Optimizations
+function setupTouchOptimizations() {
+    setupSwipeNavigation();
+    setupPullToRefresh();
+    setupHapticFeedback();
+    setupTouchFeedback();
+}
+
+// Swipe Navigation
+function setupSwipeNavigation() {
+    let startX = 0;
+    let startY = 0;
+    let isSwipeActive = false;
+    
+    const mainContent = document.querySelector('.main-content');
+    
+    mainContent.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        isSwipeActive = true;
+    }, { passive: true });
+    
+    mainContent.addEventListener('touchmove', function(e) {
+        if (!isSwipeActive) return;
+        
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        const diffX = startX - currentX;
+        const diffY = startY - currentY;
+        
+        // Prevent vertical scrolling during horizontal swipe
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    mainContent.addEventListener('touchend', function(e) {
+        if (!isSwipeActive) return;
+        
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+        const diffX = startX - endX;
+        const diffY = startY - endY;
+        
+        // Check if it's a horizontal swipe (not vertical scroll)
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 100) {
+            if (diffX > 0) {
+                // Swipe left - next step
+                handleSwipeNext();
+            } else {
+                // Swipe right - previous step
+                handleSwipePrevious();
+            }
+        }
+        
+        isSwipeActive = false;
+    }, { passive: true });
+}
+
+function handleSwipeNext() {
+    const currentStep = appState.currentStep;
+    let nextStep = currentStep + 1;
+    
+    // Check if we can navigate to next step
+    if (nextStep <= 5 && canNavigateToStep(nextStep)) {
+        triggerHapticFeedback('light');
+        showSwipeIndicator('next');
+        
+        setTimeout(() => {
+            showStep(nextStep);
+            if (nextStep === 2) displaySelectedLotInfo();
+            if (nextStep === 3) displayAvailableSpots();
+            if (nextStep === 4) displayReservationSummary();
+            if (nextStep === 5) displayConfirmation();
+        }, 150);
+    } else {
+        triggerHapticFeedback('error');
+        showSwipeIndicator('blocked');
+    }
+}
+
+function handleSwipePrevious() {
+    const currentStep = appState.currentStep;
+    let prevStep = currentStep - 1;
+    
+    if (prevStep >= 1) {
+        triggerHapticFeedback('light');
+        showSwipeIndicator('previous');
+        
+        setTimeout(() => {
+            showStep(prevStep);
+            if (prevStep === 2) displaySelectedLotInfo();
+            if (prevStep === 3) displayAvailableSpots();
+            if (prevStep === 4) displayReservationSummary();
+        }, 150);
+    } else {
+        triggerHapticFeedback('error');
+        showSwipeIndicator('blocked');
+    }
+}
+
+function showSwipeIndicator(type) {
+    let indicator = document.getElementById('swipe-indicator');
+    if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.id = 'swipe-indicator';
+        indicator.className = 'swipe-indicator';
+        document.body.appendChild(indicator);
+    }
+    
+    const icons = {
+        'next': '<i class="fas fa-chevron-right"></i>',
+        'previous': '<i class="fas fa-chevron-left"></i>',
+        'blocked': '<i class="fas fa-times"></i>'
+    };
+    
+    indicator.innerHTML = icons[type];
+    indicator.className = `swipe-indicator ${type}`;
+    indicator.style.display = 'flex';
+    
+    setTimeout(() => {
+        indicator.style.display = 'none';
+    }, 800);
+}
+
+// Pull to Refresh
+function setupPullToRefresh() {
+    let startY = 0;
+    let pullDistance = 0;
+    let isPulling = false;
+    let refreshThreshold = 80;
+    
+    const mainContent = document.querySelector('.main-content');
+    let pullIndicator = null;
+    
+    mainContent.addEventListener('touchstart', function(e) {
+        if (window.scrollY === 0) {
+            startY = e.touches[0].clientY;
+            isPulling = true;
+        }
+    }, { passive: true });
+    
+    mainContent.addEventListener('touchmove', function(e) {
+        if (!isPulling || window.scrollY > 0) return;
+        
+        const currentY = e.touches[0].clientY;
+        pullDistance = Math.max(0, currentY - startY);
+        
+        if (pullDistance > 10) {
+            e.preventDefault();
+            
+            if (!pullIndicator) {
+                pullIndicator = createPullIndicator();
+            }
+            
+            updatePullIndicator(pullDistance, refreshThreshold);
+        }
+    }, { passive: false });
+    
+    mainContent.addEventListener('touchend', function(e) {
+        if (!isPulling) return;
+        
+        if (pullDistance >= refreshThreshold) {
+            triggerRefresh();
+        } else {
+            hidePullIndicator();
+        }
+        
+        isPulling = false;
+        pullDistance = 0;
+    }, { passive: true });
+}
+
+function createPullIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'pull-indicator';
+    indicator.className = 'pull-indicator';
+    indicator.innerHTML = `
+        <div class="pull-icon">
+            <i class="fas fa-arrow-down"></i>
+        </div>
+        <div class="pull-text">Pociągnij, aby odświeżyć</div>
+    `;
+    document.body.appendChild(indicator);
+    return indicator;
+}
+
+function updatePullIndicator(distance, threshold) {
+    const indicator = document.getElementById('pull-indicator');
+    if (!indicator) return;
+    
+    const progress = Math.min(distance / threshold, 1);
+    const icon = indicator.querySelector('.pull-icon i');
+    const text = indicator.querySelector('.pull-text');
+    
+    indicator.style.transform = `translateY(${Math.min(distance, threshold)}px)`;
+    indicator.style.opacity = progress;
+    
+    if (progress >= 1) {
+        icon.className = 'fas fa-sync-alt fa-spin';
+        text.textContent = 'Puść, aby odświeżyć';
+        indicator.classList.add('ready');
+    } else {
+        icon.className = 'fas fa-arrow-down';
+        text.textContent = 'Pociągnij, aby odświeżyć';
+        indicator.classList.remove('ready');
+    }
+}
+
+function triggerRefresh() {
+    const indicator = document.getElementById('pull-indicator');
+    if (indicator) {
+        const icon = indicator.querySelector('.pull-icon i');
+        const text = indicator.querySelector('.pull-text');
+        
+        icon.className = 'fas fa-sync-alt fa-spin';
+        text.textContent = 'Odświeżanie...';
+        indicator.classList.add('refreshing');
+        
+        triggerHapticFeedback('medium');
+        
+        // Simulate refresh - in real app this would reload data
+        setTimeout(() => {
+            if (appState.currentStep === 3) {
+                displayAvailableSpots(); // Refresh available spots
+            }
+            hidePullIndicator();
+            showRefreshSuccess();
+        }, 1500);
+    }
+}
+
+function hidePullIndicator() {
+    const indicator = document.getElementById('pull-indicator');
+    if (indicator) {
+        indicator.style.transform = 'translateY(-100px)';
+        indicator.style.opacity = '0';
+        setTimeout(() => {
+            if (indicator.parentNode) {
+                indicator.parentNode.removeChild(indicator);
+            }
+        }, 300);
+    }
+}
+
+function showRefreshSuccess() {
+    let successMsg = document.getElementById('refresh-success');
+    if (!successMsg) {
+        successMsg = document.createElement('div');
+        successMsg.id = 'refresh-success';
+        successMsg.className = 'refresh-success';
+        document.body.appendChild(successMsg);
+    }
+    
+    successMsg.innerHTML = '<i class="fas fa-check"></i> Odświeżono';
+    successMsg.style.display = 'flex';
+    
+    setTimeout(() => {
+        successMsg.style.display = 'none';
+    }, 2000);
+}
+
+// Haptic Feedback
+function setupHapticFeedback() {
+    // Add haptic feedback to existing buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.btn-primary, .btn-secondary, .parking-lot-card, .spot-card, .progress-step')) {
+            triggerHapticFeedback('light');
+        }
+    });
+}
+
+function triggerHapticFeedback(type = 'light') {
+    if ('vibrate' in navigator) {
+        const patterns = {
+            'light': [10],
+            'medium': [20],
+            'heavy': [30],
+            'error': [50, 50, 50],
+            'success': [20, 20, 20]
+        };
+        
+        navigator.vibrate(patterns[type] || patterns.light);
+    }
+}
+
+// Touch Feedback (Visual)
+function setupTouchFeedback() {
+    document.addEventListener('touchstart', function(e) {
+        const target = e.target.closest('.btn-primary, .btn-secondary, .parking-lot-card, .spot-card');
+        if (target) {
+            target.classList.add('touch-active');
+        }
+    });
+    
+    document.addEventListener('touchend', function(e) {
+        const target = e.target.closest('.btn-primary, .btn-secondary, .parking-lot-card, .spot-card');
+        if (target) {
+            setTimeout(() => {
+                target.classList.remove('touch-active');
+            }, 150);
+        }
+    });
+    
+    // Ripple effect
+    document.addEventListener('touchstart', function(e) {
+        const target = e.target.closest('.btn-primary, .btn-secondary');
+        if (target) {
+            createRippleEffect(e, target);
+        }
+    });
+}
+
+function createRippleEffect(event, element) {
+    const ripple = document.createElement('span');
+    const rect = element.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = event.touches[0].clientX - rect.left - size / 2;
+    const y = event.touches[0].clientY - rect.top - size / 2;
+    
+    ripple.className = 'ripple';
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    
+    element.appendChild(ripple);
+    
+    setTimeout(() => {
+        if (ripple.parentNode) {
+            ripple.parentNode.removeChild(ripple);
+        }
+    }, 600);
+}
