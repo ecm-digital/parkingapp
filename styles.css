@@ -122,6 +122,13 @@ body {
     margin: 0 auto;
 }
 
+/* Special styling for first step - no back button, vertical layout */
+#step-1 .step-header {
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+}
+
 .btn-back {
     background: #ecf0f1;
     border: none;
@@ -1202,6 +1209,11 @@ body {
         padding: 0 50px;
     }
     
+    /* First step keeps vertical layout on mobile */
+    #step-1 .step-header {
+        padding: 0;
+    }
+    
     .step-header p {
         font-size: 1rem;
     }
@@ -1315,6 +1327,11 @@ body {
 @media (max-width: 480px) {
     .step-header {
         padding: 0 35px;
+    }
+    
+    /* First step keeps vertical layout on small mobile */
+    #step-1 .step-header {
+        padding: 0;
     }
     
     .step-header h1 {
