@@ -1,0 +1,142 @@
+{
+  "project": {
+    "name": "ParkingSpot",
+    "type": "web-application",
+    "framework": "vanilla-js",
+    "language": "javascript",
+    "description": "Aplikacja do rezerwacji miejsc parkingowych z polskim interfejsem użytkownika",
+    "version": "1.0.0",
+    "created": "2025-01-03",
+    "last_updated": "2025-01-03"
+  },
+  "architecture": {
+    "type": "client-side-spa",
+    "pattern": "mvc-like",
+    "data_storage": "localStorage",
+    "styling": "css-custom-properties",
+    "responsive": true,
+    "accessibility": "basic"
+  },
+  "files": {
+    "index.html": {
+      "type": "entry-point",
+      "purpose": "Main HTML structure and layout",
+      "dependencies": ["styles.css", "script.js"],
+      "features": ["responsive-design", "semantic-html", "hotjar-analytics"]
+    },
+    "script.js": {
+      "type": "application-logic",
+      "purpose": "Core functionality and user interactions",
+      "size": "~40KB",
+      "features": [
+        "parking-spot-management",
+        "reservation-system",
+        "user-authentication",
+        "data-persistence",
+        "modal-dialogs",
+        "form-validation",
+        "calendar-integration"
+      ],
+      "classes": [
+        "ParkingApp",
+        "ParkingSpot",
+        "Reservation",
+        "User"
+      ]
+    },
+    "styles.css": {
+      "type": "styling",
+      "purpose": "Visual design and responsive layout",
+      "size": "~26KB",
+      "features": [
+        "css-grid",
+        "flexbox",
+        "custom-properties",
+        "responsive-design",
+        "animations",
+        "dark-mode-ready"
+      ]
+    }
+  },
+  "features": {
+    "core": [
+      "parking-spot-visualization",
+      "spot-reservation",
+      "user-registration",
+      "login-system",
+      "reservation-management",
+      "calendar-view",
+      "spot-filtering"
+    ],
+    "ui": [
+      "responsive-design",
+      "modal-dialogs",
+      "form-validation",
+      "loading-states",
+      "error-handling",
+      "success-notifications"
+    ],
+    "data": [
+      "localStorage-persistence",
+      "user-data-management",
+      "reservation-data",
+      "spot-availability"
+    ]
+  },
+  "technical_stack": {
+    "frontend": {
+      "html": "HTML5",
+      "css": "CSS3 with custom properties",
+      "javascript": "ES6+ vanilla JavaScript",
+      "fonts": "Google Fonts (Inter)",
+      "icons": "Font Awesome 6.4.0"
+    },
+    "analytics": {
+      "hotjar": "6482308"
+    },
+    "deployment": {
+      "platform": "Vercel",
+      "domain": "parkingapp-ojztug32q-ecm-digitals-projects.vercel.app",
+      "build": "static-site"
+    }
+  },
+  "code_quality": {
+    "structure": "modular-functions",
+    "naming": "descriptive-polish-english-mix",
+    "comments": "minimal",
+    "error_handling": "basic",
+    "validation": "client-side-only"
+  },
+  "analysis_points": {
+    "strengths": [
+      "Clean vanilla JavaScript implementation",
+      "Responsive design",
+      "Local data persistence",
+      "User-friendly Polish interface",
+      "Modular code structure"
+    ],
+    "areas_for_improvement": [
+      "Add server-side validation",
+      "Implement proper error boundaries",
+      "Add unit tests",
+      "Improve accessibility (ARIA labels)",
+      "Add TypeScript for better type safety",
+      "Implement proper state management",
+      "Add API integration for real-time data"
+    ],
+    "security_considerations": [
+      "Client-side only validation",
+      "No authentication backend",
+      "Data stored in localStorage only",
+      "No CSRF protection",
+      "No input sanitization"
+    ]
+  },
+  "llm_analysis_prompts": {
+    "code_review": "Analyze the JavaScript code structure, identify patterns, potential bugs, and suggest improvements for maintainability and performance.",
+    "security_audit": "Review the application for security vulnerabilities, focusing on client-side validation, data storage, and potential XSS risks.",
+    "performance_analysis": "Evaluate the application's performance, including DOM manipulation efficiency, CSS optimization, and loading times.",
+    "accessibility_review": "Assess the application's accessibility compliance and suggest improvements for better user experience.",
+    "architecture_analysis": "Review the overall architecture and suggest improvements for scalability and maintainability."
+  }
+}

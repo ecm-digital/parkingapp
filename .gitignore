@@ -76,3 +76,4 @@ build/
 # Local development
 .cache/
 .parcel-cache/
+.vercel
