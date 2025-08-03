@@ -9,8 +9,12 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
-    color: #333;
-    line-height: 1.6;
+    color: #2c3e50;
+    line-height: 1.7;
+    font-size: 16px;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .app-container {
@@ -39,21 +43,23 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    font-size: 1.8rem;
+    gap: 0.75rem;
+    font-size: 2rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
 }
 
 .logo i {
-    font-size: 2rem;
+    font-size: 2.25rem;
     color: #3498db;
 }
 
 .header-subtitle {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    font-weight: 300;
+    font-size: 1rem;
+    opacity: 0.85;
+    font-weight: 400;
+    letter-spacing: 0.01em;
 }
 
 /* Main Content */
@@ -90,20 +96,27 @@ body {
     text-align: center;
     margin-bottom: 2rem;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 0;
 }
 
 .step-header h1 {
-    font-size: 2rem;
-    font-weight: 600;
+    font-size: 2.25rem;
+    font-weight: 700;
     color: #2c3e50;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
 }
 
 .step-header p {
-    color: #7f8c8d;
-    font-size: 1.1rem;
+    color: #6c757d;
+    font-size: 1.125rem;
+    font-weight: 400;
+    line-height: 1.5;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .btn-back {
@@ -128,7 +141,240 @@ body {
 
 /* Form Elements */
 .form-section {
+    margin-bottom: 3rem;
+}
+
+/* Step Instructions */
+.step-instruction {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    border-left: 4px solid #3498db;
+}
+
+.instruction-number {
+    background: #3498db;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.instruction-content h3 {
+    color: #2c3e50;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.375rem;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+}
+
+.instruction-content p {
+    color: #6c757d;
+    font-size: 0.9375rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Vehicle Types Grid */
+.vehicle-types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
     margin-bottom: 2rem;
+}
+
+.vehicle-type-card {
+    border: 2px solid #ecf0f1;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.vehicle-type-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.vehicle-type-card:hover {
+    border-color: #3498db;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
+}
+
+.vehicle-type-card:hover::before {
+    transform: scaleX(1);
+}
+
+.vehicle-type-card.selected {
+    border-color: #3498db;
+    background: linear-gradient(135deg, #3498db 0%, #2ecc71 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+}
+
+.vehicle-type-card.selected::before {
+    transform: scaleX(1);
+}
+
+.vehicle-icon {
+    margin-bottom: 1rem;
+}
+
+.vehicle-icon i {
+    font-size: 2.5rem;
+    color: #3498db;
+}
+
+.vehicle-type-card.selected .vehicle-icon i {
+    color: white;
+}
+
+.vehicle-type-card h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+}
+
+.vehicle-type-card.selected h4 {
+    color: white;
+}
+
+.vehicle-type-card p {
+    color: #6c757d;
+    font-size: 0.9375rem;
+    margin: 0;
+    line-height: 1.4;
+    font-weight: 400;
+}
+
+.vehicle-type-card.selected p {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Next Step Section */
+.next-step-section {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.selection-summary {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: #2ecc71;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+}
+
+.summary-item i {
+    color: #2ecc71;
+    font-size: 1rem;
+}
+
+.help-text {
+    color: #6c757d;
+    font-size: 0.9375rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+    line-height: 1.4;
+    font-weight: 400;
+}
+
+/* Date Validation Styles */
+.date-input-group.error .form-input {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.date-input-group.success .form-input {
+    border-color: #2ecc71;
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.error-message i {
+    font-size: 0.875rem;
+}
+
+.date-feedback {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.date-feedback.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.date-feedback.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.date-feedback.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.date-feedback i {
+    font-size: 1rem;
 }
 
 .input-group {
@@ -138,27 +384,34 @@ body {
 .input-group label {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
+    gap: 0.625rem;
+    font-weight: 600;
     color: #2c3e50;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     font-size: 1rem;
+    letter-spacing: -0.005em;
+    line-height: 1.3;
 }
 
 .input-group label i {
     color: #3498db;
     width: 20px;
+    font-size: 1.125rem;
 }
 
 .form-select,
 .form-input {
     width: 100%;
-    padding: 1rem;
+    padding: 1.125rem;
     border: 2px solid #ecf0f1;
     border-radius: 12px;
     font-size: 1rem;
+    font-weight: 400;
     transition: all 0.3s ease;
     background: white;
+    color: #2c3e50;
+    line-height: 1.4;
+    letter-spacing: 0.005em;
 }
 
 .form-select:focus,
@@ -241,19 +494,24 @@ body {
 }
 
 .lot-info h3 {
-    font-size: 1.3rem;
+    font-size: 1.375rem;
     font-weight: 600;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.375rem;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    color: #2c3e50;
 }
 
 .lot-info p {
-    color: #7f8c8d;
-    font-size: 0.9rem;
+    color: #6c757d;
+    font-size: 0.9375rem;
     margin-bottom: 0.5rem;
+    line-height: 1.4;
+    font-weight: 400;
 }
 
 .parking-lot-card.selected .lot-info p {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .price {
@@ -729,18 +987,20 @@ body {
 .btn-primary,
 .btn-secondary {
     width: 100%;
-    padding: 1rem 2rem;
+    padding: 1.125rem 2rem;
     border: none;
     border-radius: 12px;
-    font-size: 1.1rem;
+    font-size: 1.0625rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.625rem;
     text-decoration: none;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
 }
 
 /* Sticky Action Button for Mobile */
@@ -923,13 +1183,40 @@ body {
         padding: 1rem;
     }
     
-    .step-header {
-        flex-direction: column;
-        text-align: center;
-    }
+
     
     .step-header h1 {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
+        line-height: 1.25;
+        margin-bottom: 0.5rem;
+    }
+    
+    .step-header p {
+        font-size: 1rem;
+    }
+    
+    .instruction-content h3 {
+        font-size: 1rem;
+    }
+    
+    .instruction-content p {
+        font-size: 0.875rem;
+    }
+    
+    .vehicle-type-card h4 {
+        font-size: 1rem;
+    }
+    
+    .vehicle-type-card p {
+        font-size: 0.875rem;
+    }
+    
+    .lot-info h3 {
+        font-size: 1.25rem;
+    }
+    
+    .lot-info p {
+        font-size: 0.875rem;
     }
     
     .parking-lots-grid {
@@ -1009,6 +1296,38 @@ body {
 }
 
 @media (max-width: 480px) {
+    .step-header h1 {
+        font-size: 1.5rem;
+        line-height: 1.2;
+    }
+    
+    .step-header p {
+        font-size: 0.9375rem;
+    }
+    
+    .logo {
+        font-size: 1.75rem;
+    }
+    
+    .header-subtitle {
+        font-size: 0.9375rem;
+    }
+    
+    .btn-primary,
+    .btn-secondary {
+        font-size: 1rem;
+        padding: 1rem 1.5rem;
+    }
+    
+    .error-message {
+        font-size: 0.8125rem;
+    }
+    
+    .date-feedback {
+        font-size: 0.875rem;
+        padding: 0.625rem 0.875rem;
+    }
+    
     .spots-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1030,16 +1349,16 @@ body {
     .step-number {
         width: 50px;
         height: 50px;
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
     
     .progress-step span {
-        font-size: 0.65rem;
+        font-size: 0.75rem;
     }
     
     .sticky-action-button {
-        padding: 1.4rem 2rem;
-        font-size: 1.2rem;
+        padding: 1.25rem 2rem;
+        font-size: 1rem;
         bottom: 90px;
     }
     

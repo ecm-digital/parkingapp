@@ -40,28 +40,54 @@
             <!-- Step 1: Vehicle and Location Selection -->
             <section id="step-1" class="step active">
                 <div class="step-header">
-                    <h1>Znajdź idealne miejsce parkingowe</h1>
-                    <p>Wybierz plac parkingowy i typ pojazdu</p>
+                    <h1>Zarezerwuj miejsce parkingowe</h1>
+                    <p>Szybko i bez rejestracji - wybierz typ pojazdu i lokalizację</p>
                 </div>
 
                 <div class="form-section">
+                    <div class="step-instruction">
+                        <div class="instruction-number">1</div>
+                        <div class="instruction-content">
+                            <h3>Wybierz typ swojego pojazdu</h3>
+                            <p>To pomoże nam znaleźć odpowiednie miejsce</p>
+                        </div>
+                    </div>
+                    
                     <div class="input-group">
-                        <label for="vehicle-type">
-                            <i class="fas fa-truck"></i>
-                            Typ pojazdu
-                        </label>
-                        <select id="vehicle-type" class="form-select">
-                            <option value="small-bus" selected>Mały bus (do 3.5t)</option>
-                            <option value="car">Samochód osobowy</option>
-                            <option value="large-bus">Duży bus (powyżej 3.5t)</option>
-                        </select>
+                        <div class="vehicle-types-grid">
+                            <div class="vehicle-type-card" data-type="car">
+                                <div class="vehicle-icon">
+                                    <i class="fas fa-car"></i>
+                                </div>
+                                <h4>Samochód osobowy</h4>
+                                <p>Standardowe miejsce</p>
+                            </div>
+                            <div class="vehicle-type-card selected" data-type="small-bus">
+                                <div class="vehicle-icon">
+                                    <i class="fas fa-shuttle-van"></i>
+                                </div>
+                                <h4>Mały bus</h4>
+                                <p>Do 3.5 tony</p>
+                            </div>
+                            <div class="vehicle-type-card" data-type="large-bus">
+                                <div class="vehicle-icon">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <h4>Duży bus</h4>
+                                <p>Powyżej 3.5 tony</p>
+                            </div>
+                        </div>
                     </div>
 
+                    <div class="step-instruction">
+                        <div class="instruction-number">2</div>
+                        <div class="instruction-content">
+                            <h3>Wybierz lokalizację parkingu</h3>
+                            <p>Kliknij na wybrany plac parkingowy</p>
+                        </div>
+                    </div>
+                    
                     <div class="input-group">
-                        <label for="parking-lot">
-                            <i class="fas fa-map-marker-alt"></i>
-                            Plac parkingowy
-                        </label>
                         <div class="parking-lots-grid" id="parking-lots">
                             <div class="parking-lot-card" data-lot="centrum">
                                 <div class="lot-icon">
@@ -108,10 +134,23 @@
                     </div>
                 </div>
 
-                <button class="btn-primary" id="continue-to-dates" disabled>
-                    Wybierz daty najmu
-                    <i class="fas fa-arrow-right"></i>
-                </button>
+                <div class="next-step-section">
+                    <div class="selection-summary" id="selection-summary" style="display: none;">
+                        <div class="summary-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span id="selected-vehicle-text">Mały bus</span>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span id="selected-location-text">Lokalizacja wybrana</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary" id="continue-to-dates" disabled>
+                        <span class="btn-text">Wybierz daty najmu</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <p class="help-text">Wybierz typ pojazdu i lokalizację, aby kontynuować</p>
+                </div>
             </section>
 
             <!-- Step 2: Date Selection -->
@@ -135,16 +174,16 @@
                         <div class="date-input-group">
                             <label for="start-date">
                                 <i class="fas fa-calendar-plus"></i>
-                                Data rozpoczęcia
+                                Data rozpoczęcia najmu
                             </label>
-                            <input type="date" id="start-date" class="form-input">
+                            <input type="date" id="start-date" class="form-input" title="Wybierz datę rozpoczęcia najmu">
                         </div>
                         <div class="date-input-group">
                             <label for="end-date">
                                 <i class="fas fa-calendar-minus"></i>
-                                Data zakończenia
+                                Data zakończenia najmu
                             </label>
-                            <input type="date" id="end-date" class="form-input">
+                            <input type="date" id="end-date" class="form-input" title="Wybierz datę zakończenia najmu">
                         </div>
                     </div>
                     

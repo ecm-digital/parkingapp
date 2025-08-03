@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeApp() {
     showStep(1);
     updateProgressIndicator();
+    updateSelectionSummary();
 }
 
 function setupEventListeners() {
@@ -82,8 +83,16 @@ function setupEventListeners() {
     });
 
     // Vehicle type selection
-    document.getElementById('vehicle-type').addEventListener('change', function() {
-        appState.selectedVehicle = this.value;
+    document.querySelectorAll('.vehicle-type-card').forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove selected class from all cards
+            document.querySelectorAll('.vehicle-type-card').forEach(c => c.classList.remove('selected'));
+            // Add selected class to clicked card
+            this.classList.add('selected');
+            // Update app state
+            appState.selectedVehicle = this.dataset.type;
+            updateSelectionSummary();
+        });
     });
 
     // Continue to dates button
@@ -168,21 +177,12 @@ function setMinDate() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowString = tomorrow.toISOString().split('T')[0];
     
+    // Set minimum dates
     document.getElementById('start-date').min = today;
-    document.getElementById('end-date').min = today;
+    document.getElementById('end-date').min = tomorrowString; // End date must be at least tomorrow
     
-    // Set smart defaults - today as start, tomorrow as end
-    if (!appState.startDate && !appState.endDate) {
-        document.getElementById('start-date').value = today;
-        document.getElementById('end-date').value = tomorrowString;
-        appState.startDate = today;
-        appState.endDate = tomorrowString;
-        
-        // Trigger calculation with defaults
-        setTimeout(() => {
-            handleDateChange();
-        }, 100);
-    }
+    // Show initial hint
+    showDateHint('Wybierz daty najmu miejsca parkingowego');
 }
 
 function selectParkingLot(lotId) {
@@ -195,6 +195,8 @@ function selectParkingLot(lotId) {
     document.querySelector(`[data-lot="${lotId}"]`).classList.add('selected');
     
     appState.selectedLot = lotId;
+    updateSelectionSummary();
+    
     const continueButton = document.getElementById('continue-to-dates');
     continueButton.disabled = false;
     
@@ -207,45 +209,123 @@ function selectParkingLot(lotId) {
     }, 300);
 }
 
+function updateSelectionSummary() {
+    const summaryElement = document.getElementById('selection-summary');
+    const vehicleText = document.getElementById('selected-vehicle-text');
+    const locationText = document.getElementById('selected-location-text');
+    const helpText = document.querySelector('.help-text');
+    
+    // Update vehicle text
+    const vehicleTypes = {
+        'car': 'Samochód osobowy',
+        'small-bus': 'Mały bus (do 3.5t)',
+        'large-bus': 'Duży bus (powyżej 3.5t)'
+    };
+    vehicleText.textContent = vehicleTypes[appState.selectedVehicle];
+    
+    // Update location text
+    if (appState.selectedLot) {
+        const lot = parkingLots[appState.selectedLot];
+        locationText.textContent = lot.name;
+        summaryElement.style.display = 'flex';
+        helpText.style.display = 'none';
+    } else {
+        summaryElement.style.display = 'none';
+        helpText.style.display = 'block';
+    }
+}
+
 function displaySelectedLotInfo() {
     const lot = parkingLots[appState.selectedLot];
     const infoElement = document.getElementById('selected-lot-info');
     
     infoElement.innerHTML = `
         <h3>${lot.name}</h3>
-        <p>${lot.address} • ${lot.price} zł/dzień</p>
+        <p>${lot.address}</p>
+        <div class="lot-features">
+            ${lot.features.map(feature => `<span class="feature"><i class="fas fa-check"></i> ${feature}</span>`).join('')}
+        </div>
     `;
 }
 
 function handleDateChange() {
-    const startDate = document.getElementById('start-date').value;
-    const endDate = document.getElementById('end-date').value;
+    const startDateInput = document.getElementById('start-date');
+    const endDateInput = document.getElementById('end-date');
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
     const checkButton = document.getElementById('check-availability');
     
+    // Clear previous error states
+    clearDateErrors();
+    
+    // Validate start date
     if (startDate) {
-        document.getElementById('end-date').min = startDate;
+        const today = new Date().toISOString().split('T')[0];
+        if (startDate < today) {
+            showDateError('start-date', 'Data rozpoczęcia nie może być w przeszłości');
+            checkButton.disabled = true;
+            return;
+        }
+        
+        // Update minimum end date to be at least start date
+        const nextDay = new Date(startDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        const nextDayString = nextDay.toISOString().split('T')[0];
+        endDateInput.min = nextDayString;
+        
+        // If end date is already set but is before start date, clear it
+        if (endDate && endDate <= startDate) {
+            endDateInput.value = '';
+            showDateError('end-date', 'Data zakończenia musi być po dacie rozpoczęcia');
+            checkButton.disabled = true;
+            return;
+        }
+        
         appState.startDate = startDate;
     }
     
+    // Validate end date
     if (endDate) {
+        if (!startDate) {
+            showDateError('end-date', 'Najpierw wybierz datę rozpoczęcia');
+            checkButton.disabled = true;
+            return;
+        }
+        
+        if (endDate <= startDate) {
+            showDateError('end-date', 'Data zakończenia musi być po dacie rozpoczęcia');
+            checkButton.disabled = true;
+            return;
+        }
+        
+        // Check if rental period is not too long (max 30 days)
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays > 30) {
+            showDateError('end-date', 'Maksymalny okres najmu to 30 dni');
+            checkButton.disabled = true;
+            return;
+        }
+        
         appState.endDate = endDate;
     }
     
+    // Both dates are valid
     if (startDate && endDate) {
         calculateRentalSummary();
         checkButton.disabled = false;
-        
-        // Show success feedback - but NO auto-progression
-        showDateFeedback('success');
-        
+        showDateSuccess();
     } else {
         checkButton.disabled = true;
         
-        // Show appropriate feedback
+        // Show helpful hints
         if (!startDate && !endDate) {
-            showDateFeedback('info');
+            showDateHint('Wybierz daty najmu miejsca parkingowego');
         } else if (!endDate) {
-            showDateFeedback('warning');
+            showDateHint('Wybierz datę zakończenia najmu');
         }
     }
 }
@@ -318,6 +398,75 @@ function showDateFeedback(type) {
             feedbackElement.style.display = 'block';
         }
     }
+}
+
+function clearDateErrors() {
+    const startDateGroup = document.getElementById('start-date').closest('.date-input-group');
+    const endDateGroup = document.getElementById('end-date').closest('.date-input-group');
+    
+    // Remove error classes and messages
+    [startDateGroup, endDateGroup].forEach(group => {
+        group.classList.remove('error', 'success');
+        const errorMsg = group.querySelector('.error-message');
+        if (errorMsg) errorMsg.remove();
+    });
+    
+    // Clear any existing feedback
+    const feedbackElement = document.querySelector('.date-feedback');
+    if (feedbackElement) feedbackElement.remove();
+}
+
+function showDateError(inputId, message) {
+    const input = document.getElementById(inputId);
+    const group = input.closest('.date-input-group');
+    
+    group.classList.add('error');
+    group.classList.remove('success');
+    
+    // Remove existing error message
+    const existingError = group.querySelector('.error-message');
+    if (existingError) existingError.remove();
+    
+    // Add new error message
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+    group.appendChild(errorDiv);
+}
+
+function showDateSuccess() {
+    const startDateGroup = document.getElementById('start-date').closest('.date-input-group');
+    const endDateGroup = document.getElementById('end-date').closest('.date-input-group');
+    
+    [startDateGroup, endDateGroup].forEach(group => {
+        group.classList.add('success');
+        group.classList.remove('error');
+    });
+    
+    // Show success feedback
+    showDateFeedback('Daty zostały wybrane poprawnie', 'success');
+}
+
+function showDateHint(message) {
+    showDateFeedback(message, 'info');
+}
+
+function showDateFeedback(message, type) {
+    // Remove existing feedback
+    const existingFeedback = document.querySelector('.date-feedback');
+    if (existingFeedback) existingFeedback.remove();
+    
+    const feedbackDiv = document.createElement('div');
+    feedbackDiv.className = `date-feedback ${type}`;
+    
+    const icon = type === 'success' ? 'check-circle' : 
+                 type === 'error' ? 'exclamation-circle' : 'info-circle';
+    
+    feedbackDiv.innerHTML = `<i class="fas fa-${icon}"></i> ${message}`;
+    
+    // Insert after date inputs
+    const dateSelection = document.querySelector('.date-selection');
+    dateSelection.appendChild(feedbackDiv);
 }
 
 function calculateRentalSummary() {
@@ -541,7 +690,8 @@ function startNewReservation() {
     };
     
     // Reset form elements
-    document.getElementById('vehicle-type').value = 'small-bus';
+    document.querySelectorAll('.vehicle-type-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector('.vehicle-type-card[data-type="small-bus"]').classList.add('selected');
     document.getElementById('start-date').value = '';
     document.getElementById('end-date').value = '';
     document.getElementById('first-name').value = '';
