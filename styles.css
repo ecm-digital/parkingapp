@@ -584,6 +584,10 @@ body {
     opacity: 0.9;
 }
 
+.selected-lot-info .feature {
+    color: white;
+}
+
 /* Date Selection */
 .date-selection {
     background: #f8f9fa;
